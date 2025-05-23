@@ -1,4 +1,7 @@
 const express = require("express");
+const {client ,connectToDatabase } = require("./db/index")
+
+connectToDatabase(); 
 
 const app = express();
 const PORT = 3000;
