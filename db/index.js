@@ -1,11 +1,11 @@
 const {Client} = require("pg");
 
 const dbConfig = {
-    user:"greenstory",
+    user:"postgres",
     host:"localhost",
-    database:"greenstory",
-    password:"greenstory1234",
-    port:5432
+    database:"postgres",
+    password:"password",
+    port:5433
 }
 
 console.log(dbConfig);
