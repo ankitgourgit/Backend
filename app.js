@@ -68,8 +68,75 @@ app.get('/albums', async (req, res) => {
     }
   });
 
-//server
+//get by id
+app.get('/albums/:id',async(req,res)=>{
+  try {
+    const id = req.params;
+    const query =`SELECT * From albums WHERE id = $1`;
+    const {rows} = await client.query(query,[id]);
 
+    if (rows.length === 0){
+      return res.status(404).send('Album not found');
+    }
+
+    res.status(200).json(rows[0]);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('failed');
+  }
+})
+
+//update
+app.put('/albums/:id',async(req,res)=>{
+  try {
+    const {id}= req.params;
+    const{title, artist, price} = req.body
+
+    if(!title & !artist & !price){
+      return res.status(400).send('Please provide  field (title, artist, price)');
+    }
+
+    const query = `UPDATE albums 
+                   SET title =  COALESCE($1, title),
+                       artist= COALESCE($2, artist),
+                       price =  COALESCE($3, price)
+                   WHERE id = $4
+                   RETURNING *
+                   `;
+
+                   const {rows} = await client.query(query,[title, artist, price,id]);
+
+                   if (rows.length ===0){
+                    return res.status(404).send('cannot find anything');
+                   }
+                   res.status(200).json(rows[0]);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('some error has ocuured failed')
+  }
+})
+
+// delete
+app.delete('/albums/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const query = 'DELETE FROM albums WHERE id = $1 RETURNING *;';
+      const { rows } = await client.query(query, [id]);
+  
+      if (rows.length === 0) {
+        return res.status(404).send('we have not found the album');
+      }
+  
+      res.status(200).json(rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('some error has occured');
+    }
+  });
+
+//server
 app.listen(PORT,(error)=>{
     if(error) console.log(error);
     else console.log(`server is sucessfully running and app is listing on port ${PORT}`);
